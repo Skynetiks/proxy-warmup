@@ -63,7 +63,6 @@ export class RecipientManager {
 }
 
 export class EmailWarmup {
-  private from: Sender;
   private warmupSchedule: WarmupSchedule;
   private startDate: Date;
   private sendEmailFunction: (from: Sender, to: string) => Promise<void>;
@@ -92,7 +91,6 @@ export class EmailWarmup {
       throw new Error("A valid warmupSchedule object is required.");
     }
 
-    this.from = from;
     this.warmupSchedule = warmupSchedule;
     this.startDate = new Date(startDate);
     this.startDate.setHours(0, 0, 0, 0);
@@ -187,7 +185,6 @@ export class EmailWarmup {
     logEmailWarmupProcess({
       startDate: this.startDate,
       projectedEndDate: projectedEndDate,
-      from: this.from,
       recipientsLength: this.recipientManager.getSize(),
       maxTargetEmailsPerDay: maxTargetEmailsPerDay,
     });
@@ -278,15 +275,16 @@ export class EmailWarmup {
    */
   private async sendRandomEmail(): Promise<void> {
     const recipient = this.getRandomRecipient();
+    const randomSender = getRandomSender();
     try {
       logger.info(
         `Sending ${
           this.dailyEmailCountSent + 1
-        }/${this.getEmailsPerDay()} email ${this.from.name} ${
-          this.from.email
+        }/${this.getEmailsPerDay()} email ${randomSender.name} ${
+          randomSender.email
         } to ${recipient}`
       );
-      await this.sendEmailFunction(this.from, recipient);
+      await this.sendEmailFunction(randomSender, recipient);
     } catch (error) {
       logger.error(`Failed to send email to ${recipient}:`, error);
       // Optionally, add retry logic here.

@@ -28,13 +28,11 @@ export const logger = winston.createLogger({
 export function logEmailWarmupProcess({
   startDate,
   projectedEndDate,
-  from,
   recipientsLength,
   maxTargetEmailsPerDay,
 }: {
   startDate: Date;
   projectedEndDate: Date;
-  from: Sender;
   recipientsLength: number;
   maxTargetEmailsPerDay: number;
 }) {
@@ -42,7 +40,6 @@ export function logEmailWarmupProcess({
   ================================== Skyfunnel Email Warmup Process Initiated ==================================
     Start Date           : ${startDate.toDateString()}
     Projected End Date   : ${projectedEndDate.toDateString()}
-    Sender Email         : ${from}
     Number of Recipients : ${recipientsLength}
     Maximum Target Emails/Day: ${maxTargetEmailsPerDay}
   ==============================================================================================================
