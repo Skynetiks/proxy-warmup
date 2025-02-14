@@ -1,10 +1,12 @@
+import { Sender } from "./config";
+
 export interface WarmupSchedule {
-    [week: number]: number;
-  }
-  
+  [week: number]: number;
+}
+
 export interface EmailWarmupConfig {
-    from: string;
-    warmupSchedule: WarmupSchedule;
-    startDate?: Date;
-    sendEmailFunction?: (from: string, to: string) => Promise<void>;
-  }
+  from: Sender;
+  warmupSchedule: WarmupSchedule;
+  startDate?: Date;
+  sendEmailFunction?: (from: Sender, to: string) => Promise<void>;
+}

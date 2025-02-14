@@ -1,5 +1,6 @@
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
+import { Sender } from "./config";
 
 export const logger = winston.createLogger({
   level: "info",
@@ -33,7 +34,7 @@ export function logEmailWarmupProcess({
 }: {
   startDate: Date;
   projectedEndDate: Date;
-  from: string;
+  from: Sender;
   recipientsLength: number;
   maxTargetEmailsPerDay: number;
 }) {

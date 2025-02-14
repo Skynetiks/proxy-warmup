@@ -2,11 +2,7 @@ import { setInterval, clearInterval, setTimeout, clearTimeout } from "timers";
 import { env } from "./env.js";
 import { logEmailWarmupProcess, logger } from "./logger.js";
 import type { EmailWarmupConfig, WarmupSchedule } from "./types.js";
-import {
-  fromAddress,
-  STATUS_LOG_INTERVAL,
-  warmupSchedule,
-} from "./config.js";
+import { fromAddress, Sender, STATUS_LOG_INTERVAL, warmupSchedule } from "./config.js";
 import { promises as fsPromises } from "fs";
 import { sendMail } from "./nodemailer.js";
 
@@ -67,10 +63,10 @@ export class RecipientManager {
 }
 
 export class EmailWarmup {
-  private from: string;
+  private from: Sender;
   private warmupSchedule: WarmupSchedule;
   private startDate: Date;
-  private sendEmailFunction: (from: string, to: string) => Promise<void>;
+  private sendEmailFunction: (from: Sender, to: string) => Promise<void>;
   private emailIntervalId: NodeJS.Timeout | null = null;
   private nextDayTimeoutId: NodeJS.Timeout | null = null;
   private dailyEmailCountSent = 0;
@@ -85,8 +81,8 @@ export class EmailWarmup {
       sendEmailFunction,
     } = config;
 
-    if (!from) {
-      throw new Error("A valid 'from' email address is required.");
+    if (!from.email || !from.name) {
+      throw new Error("A valid 'from' name & email address is required.");
     }
 
     if (
@@ -226,22 +222,22 @@ export class EmailWarmup {
       `Week ${this.getCurrentWeek()}: Scheduling ${emailsToSend} emails for today.`
     );
     this.dailyEmailCountSent = 0;
-  
+
     if (emailsToSend <= 0) {
       logger.error("Email count per day is non-positive. Skipping today.");
       this.scheduleNextDay();
       return;
     }
-  
+
     const now = new Date();
     const nextMidnight = new Date(now);
     nextMidnight.setHours(24, 0, 0, 0);
     const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
-  
+
     // Calculate delay between emails based on time left in the day
     const delayBetweenEmails = Math.floor(timeUntilMidnight / emailsToSend);
     const effectiveDelay = Math.max(delayBetweenEmails, 1000);
-  
+
     this.emailIntervalId = setInterval(async () => {
       if (this.dailyEmailCountSent >= emailsToSend) {
         if (this.emailIntervalId) {
@@ -252,7 +248,7 @@ export class EmailWarmup {
         this.scheduleNextDay();
         return;
       }
-  
+
       try {
         await this.sendRandomEmail();
         this.dailyEmailCountSent++;
@@ -286,7 +282,9 @@ export class EmailWarmup {
       logger.info(
         `Sending ${
           this.dailyEmailCountSent + 1
-        }/${this.getEmailsPerDay()} email ${this.from} to ${recipient}`
+        }/${this.getEmailsPerDay()} email ${this.from.name} ${
+          this.from.email
+        } to ${recipient}`
       );
       await this.sendEmailFunction(this.from, recipient);
     } catch (error) {
@@ -309,8 +307,11 @@ export class EmailWarmup {
    * Default email sending function.
    * Replace this with actual email sending logic (e.g., using nodemailer).
    */
-  private async defaultSendEmail(from: string, to: string): Promise<void> {
-    await sendMail(to, from)
+  private async defaultSendEmail(
+    from: { name: string; email: string },
+    to: string
+  ): Promise<void> {
+    await sendMail(to, from);
   }
 
   /**
@@ -381,7 +382,6 @@ async function main() {
   });
 
   await emailWarmup.loadRecipients(env.RECIPIENTS_FILE);
-  
   // Start the warmup process.
   emailWarmup.start();
 

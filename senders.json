@@ -1,7 +1,48 @@
 {
     "senders": [
-      "sales1@skyfunnel.us",
-      "sales2@skyfunnel.us"
+      {
+        "name": "Aman",
+        "email": "aman@skyfunnel.us"
+      },
+      {
+        "name": "Jason",
+        "email": "jason@skyfunnel.us"
+      },
+      {
+        "name": "Jon",
+        "email": "jon@skyfunnel.us"
+      },
+      {
+        "name": "Nathan",
+        "email": "nathan@skyfunnel.us"
+      },
+      {
+        "name": "Ben",
+        "email": "ben@skyfunnel.us"
+      },
+      {
+        "name": "Peter",
+        "email": "peter@skyfunnel.us"
+      },
+      {
+        "name": "Harry",
+        "email": "harry@skyfunnel.us"
+      },
+      {
+        "name": "Ethan",
+        "email": "ethan@skyfunnel.us"
+      },
+      {
+        "name": "Simon",
+        "email": "simon@skyfunnel.us"
+      },
+      {
+        "name": "David",
+        "email": "david@skyfunnel.us"
+      },
+      {
+        "name": "Stephen",
+        "email": "stephen@skyfunnel.us"
+      }
     ]
   }
-  
