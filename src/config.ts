@@ -5,9 +5,9 @@ import type { WarmupSchedule } from "./types.js";
 import { createWarmupSchedule } from "./index.js";
 
 export const warmupSchedule: WarmupSchedule = createWarmupSchedule(
-  200,
-  200,
-  3000
+  500,
+  500,
+  1000
 );
 
 export const fromAddress: Sender = getRandomSender();
