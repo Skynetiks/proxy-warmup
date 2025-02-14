@@ -4,7 +4,6 @@ export interface WarmupSchedule {
   
 export interface EmailWarmupConfig {
     from: string;
-    recipients: string[];
     warmupSchedule: WarmupSchedule;
     startDate?: Date;
     sendEmailFunction?: (from: string, to: string) => Promise<void>;

@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import socks from "socks";
 import { env } from "./env";
 import { logger } from "./logger";
+import { Content } from "./config";
 
 export const sendMail = async (to: string, from: string) => {
   const transporter = nodemailer.createTransport({
@@ -25,11 +26,14 @@ export const sendMail = async (to: string, from: string) => {
     logger.error("PROXY IS NOT SET USING DIRECT CONNECTION");
   }
 
+  if(!Content) return logger.error("Content is not loaded");
+
   const info = await transporter.sendMail({
-    from: from,
+    from: `Sales <${env.SMTP_SENDER_EMAIL}>`,
     to: to,
-    subject: "Hello ✔",
-    text: "Hello world?",
+    subject: Content.subject,
+    text: Content.text,
+    html: Content.html,
   })
 
   logger.info(`Email sent to ${to} from ${from}`, {

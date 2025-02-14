@@ -4,7 +4,6 @@ import { logEmailWarmupProcess, logger } from "./logger";
 import type { EmailWarmupConfig, WarmupSchedule } from "./types";
 import {
   fromAddress,
-  recipients,
   STATUS_LOG_INTERVAL,
   warmupSchedule,
 } from "./config";
@@ -89,9 +88,7 @@ export class EmailWarmup {
     if (!from) {
       throw new Error("A valid 'from' email address is required.");
     }
-    if (!Array.isArray(recipients) || recipients.length === 0) {
-      throw new Error("A non-empty array of recipients is required.");
-    }
+
     if (
       typeof warmupSchedule !== "object" ||
       Object.keys(warmupSchedule).length === 0
@@ -374,7 +371,6 @@ async function main() {
   // Create an instance of the EmailWarmup.
   const emailWarmup = new EmailWarmup({
     from: fromAddress,
-    recipients: recipients,
     warmupSchedule: warmupSchedule,
     startDate: new Date(),
   });

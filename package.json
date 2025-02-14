@@ -6,15 +6,18 @@
     "start": "pnpm run dist/index.js",
     "dev": "tsx src/index.ts",
     "build": "tsc",
-    "leads": "tsx src/scripts/generateJson.ts"
+    "leads": "tsx src/scripts/generateJson.ts",
+    "sendTestMail": "tsx src/scripts/sendTestMail.ts"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@types/html-to-text": "^9.0.4",
     "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^6.4.17",
     "dotenv": "^16.4.7",
+    "html-to-text": "^9.0.5",
     "https-proxy-agent": "^7.0.6",
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
