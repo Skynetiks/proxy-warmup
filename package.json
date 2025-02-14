@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "pnpm run dist/index.js",
+    "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "build": "tsc",
     "leads": "tsx src/scripts/generateJson.ts",
@@ -29,6 +29,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.11"
+    "@types/pg": "^8.11.11",
+    "typescript": "^5.7.3"
   }
 }

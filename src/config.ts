@@ -1,9 +1,8 @@
-import { env } from "./env";
+import { env } from "./env.js";
 import fs from "fs";
 import { convert } from "html-to-text";
-import path from "path";
-import type { WarmupSchedule } from "./types";
-import { createWarmupSchedule } from ".";
+import type { WarmupSchedule } from "./types.js";
+import { createWarmupSchedule } from "./index.js";
 
 export const warmupSchedule: WarmupSchedule = createWarmupSchedule(
   200,

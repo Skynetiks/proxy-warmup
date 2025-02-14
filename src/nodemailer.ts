@@ -1,8 +1,8 @@
 import nodemailer from "nodemailer";
 import socks from "socks";
-import { env } from "./env";
-import { logger } from "./logger";
-import { Content } from "./config";
+import { env } from "./env.js";
+import { logger } from "./logger.js";
+import { Content } from "./config.js";
 
 export const sendMail = async (to: string, from: string) => {
   const transporter = nodemailer.createTransport({

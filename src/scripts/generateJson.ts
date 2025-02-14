@@ -1,6 +1,6 @@
 import fs from "fs";
 import pg from "pg";
-import { env } from "../env";
+import { env } from "../env.js";
 
 const sqlQuery = `SELECT email FROM "Lead" WHERE "isEmailValid" = 'VALID'`;
 

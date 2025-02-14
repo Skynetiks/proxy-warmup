@@ -1,14 +1,14 @@
 import { setInterval, clearInterval, setTimeout, clearTimeout } from "timers";
-import { env } from "./env";
-import { logEmailWarmupProcess, logger } from "./logger";
-import type { EmailWarmupConfig, WarmupSchedule } from "./types";
+import { env } from "./env.js";
+import { logEmailWarmupProcess, logger } from "./logger.js";
+import type { EmailWarmupConfig, WarmupSchedule } from "./types.js";
 import {
   fromAddress,
   STATUS_LOG_INTERVAL,
   warmupSchedule,
-} from "./config";
+} from "./config.js";
 import { promises as fsPromises } from "fs";
-import { sendMail } from "./nodemailer";
+import { sendMail } from "./nodemailer.js";
 
 export class RecipientManager {
   private recipients: Set<string>;
