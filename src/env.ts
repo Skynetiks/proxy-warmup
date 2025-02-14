@@ -15,6 +15,8 @@ const envSchema = z.object({
   SMTP_HOST: z.string().nonempty("SMTP_HOST is required."),
   SMTP_PROXY: z.string().url().nonempty("SMTP_PROXY is required.").optional(),
   SMTP_SENDER_EMAIL: z.string().email().nonempty("SMTP_SENDER_EMAIL is required."),
+  RECIPIENTS_FILE: z.string().nonempty("RECIPIENTS_FILE is required."),
+  DATABASE_URL: z.string().nonempty("DATABASE_URL is required."),
 });
 
 

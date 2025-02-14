@@ -2,7 +2,7 @@ import { createWarmupSchedule, EmailWarmup } from ".";
 import { env } from "./env";
 import type { WarmupSchedule } from "./types";
 
-export const warmupSchedule: WarmupSchedule = createWarmupSchedule(300, 750, 3000);
+export const warmupSchedule: WarmupSchedule = createWarmupSchedule(10000, 750, 16000);
 
 export const recipients: string[] = [
   "user1@example.com",

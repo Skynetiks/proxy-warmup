@@ -2,13 +2,73 @@ import { setInterval, clearInterval, setTimeout, clearTimeout } from "timers";
 import { env } from "./env";
 import { logEmailWarmupProcess, logger } from "./logger";
 import type { EmailWarmupConfig, WarmupSchedule } from "./types";
-import { fromAddress, recipients, STATUS_LOG_INTERVAL, warmupSchedule } from "./config";
+import {
+  fromAddress,
+  recipients,
+  STATUS_LOG_INTERVAL,
+  warmupSchedule,
+} from "./config";
+import { promises as fsPromises } from "fs";
+import { sendMail } from "./nodemailer";
 
+export class RecipientManager {
+  private recipients: Set<string>;
+  private iterator: Iterator<string>;
 
+  constructor(recipients: string[]) {
+    if (!Array.isArray(recipients) || recipients.length === 0) {
+      throw new Error("A non-empty array of recipients is required.");
+    }
+    // Use a Set to ensure uniqueness.
+    this.recipients = new Set(recipients);
+    this.iterator = this.recipients.values();
+  }
+
+  /**
+   * Returns the next recipient in a round-robin fashion.
+   */
+  public getNextRecipient(): string {
+    let next = this.iterator.next();
+    // When the iterator is done, reset it.
+    if (next.done) {
+      this.iterator = this.recipients.values();
+      next = this.iterator.next();
+    }
+    return next.value;
+  }
+
+  public getSize(): number {
+    return this.recipients.size;
+  }
+
+  /**
+   * Adds a new recipient to the set.
+   */
+  public addRecipient(recipient: string): void {
+    this.recipients.add(recipient);
+    // Reset iterator to include the new recipient.
+    this.iterator = this.recipients.values();
+  }
+
+  /**
+   * Removes a recipient from the set.
+   */
+  public removeRecipient(recipient: string): void {
+    this.recipients.delete(recipient);
+    // Reset iterator as the set has changed.
+    this.iterator = this.recipients.values();
+  }
+
+  /**
+   * Returns all recipients as an array.
+   */
+  public getAllRecipients(): string[] {
+    return Array.from(this.recipients);
+  }
+}
 
 export class EmailWarmup {
   private from: string;
-  private recipients: string[];
   private warmupSchedule: WarmupSchedule;
   private startDate: Date;
   private sendEmailFunction: (from: string, to: string) => Promise<void>;
@@ -16,11 +76,11 @@ export class EmailWarmup {
   private nextDayTimeoutId: NodeJS.Timeout | null = null;
   private dailyEmailCountSent = 0;
   private isRunning = false;
+  private recipientManager: RecipientManager | null = null;
 
   constructor(config: EmailWarmupConfig) {
     const {
       from,
-      recipients,
       warmupSchedule,
       startDate = new Date(),
       sendEmailFunction,
@@ -40,11 +100,26 @@ export class EmailWarmup {
     }
 
     this.from = from;
-    this.recipients = recipients;
     this.warmupSchedule = warmupSchedule;
     this.startDate = new Date(startDate);
     this.startDate.setHours(0, 0, 0, 0);
     this.sendEmailFunction = sendEmailFunction || this.defaultSendEmail;
+  }
+
+  public async loadRecipients(filePath: string): Promise<void> {
+    try {
+      const data = await fsPromises.readFile(filePath, "utf8");
+      const recipients: string[] = JSON.parse(data);
+      if (!Array.isArray(recipients)) {
+        throw new Error("Invalid recipients file format: expected an array.");
+      }
+      // Reinitialize the RecipientManager with the new recipients.
+      this.recipientManager = new RecipientManager(recipients);
+      logger.info(`Loaded ${recipients.length} recipients from ${filePath}.`);
+    } catch (error) {
+      logger.error(`Failed to load recipients from ${filePath}:`, error);
+      throw error;
+    }
   }
 
   /**
@@ -87,6 +162,11 @@ export class EmailWarmup {
       logger.warn("Email warmup is already running.");
       return;
     }
+    if (!this.recipientManager) {
+      logger.error("Load recipients before starting the warmup.");
+      return;
+    }
+
     this.isRunning = true;
 
     // Check if the start date is in the past
@@ -110,13 +190,12 @@ export class EmailWarmup {
     const maxTargetEmailsPerDay = Math.max(
       ...Object.values(this.warmupSchedule)
     );
-    
 
     logEmailWarmupProcess({
       startDate: this.startDate,
       projectedEndDate: projectedEndDate,
       from: this.from,
-      recipientsLength: this.recipients.length,
+      recipientsLength: this.recipientManager.getSize(),
       maxTargetEmailsPerDay: maxTargetEmailsPerDay,
     });
 
@@ -218,8 +297,10 @@ export class EmailWarmup {
    * Returns a random recipient from the provided list.
    */
   private getRandomRecipient(): string {
-    const index = Math.floor(Math.random() * this.recipients.length);
-    return this.recipients[index];
+    if (!this.recipientManager) {
+      throw new Error("RecipientManager is not initialized.");
+    }
+    return this.recipientManager.getNextRecipient();
   }
 
   /**
@@ -227,7 +308,7 @@ export class EmailWarmup {
    * Replace this with actual email sending logic (e.g., using nodemailer).
    */
   private async defaultSendEmail(from: string, to: string): Promise<void> {
-    // await sendMail(to, from)
+    await sendMail(to, from)
   }
 
   /**
@@ -266,7 +347,11 @@ export class EmailWarmup {
   }
 }
 
-export function createWarmupSchedule(startValue:number, increment: number, targetEmails: number): WarmupSchedule {
+export function createWarmupSchedule(
+  startValue: number,
+  increment: number,
+  targetEmails: number
+): WarmupSchedule {
   const warmupSchedule: WarmupSchedule = {};
   let week = 1;
   let currentEmailCount = startValue;
@@ -283,23 +368,24 @@ export function createWarmupSchedule(startValue:number, increment: number, targe
   }
 
   return warmupSchedule;
-
 }
 
+async function main() {
+  // Create an instance of the EmailWarmup.
+  const emailWarmup = new EmailWarmup({
+    from: fromAddress,
+    recipients: recipients,
+    warmupSchedule: warmupSchedule,
+    startDate: new Date(),
+  });
 
+  await emailWarmup.loadRecipients(env.RECIPIENTS_FILE);
+  
+  // Start the warmup process.
+  emailWarmup.start();
 
-// Create an instance of the EmailWarmup.
-const emailWarmup = new EmailWarmup({
-  from: fromAddress,
-  recipients: recipients,
-  warmupSchedule: warmupSchedule,
-  startDate: new Date(),
-});
-
-// Start the warmup process.
-emailWarmup.start();
-
-
-setInterval(() => {
-  emailWarmup.getStatus();
-}, STATUS_LOG_INTERVAL);
+  setInterval(() => {
+    emailWarmup.getStatus();
+  }, STATUS_LOG_INTERVAL);
+}
+main()

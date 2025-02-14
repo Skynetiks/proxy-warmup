@@ -30,7 +30,7 @@ export const sendMail = async (to: string, from: string) => {
     to: to,
     subject: "Hello ✔",
     text: "Hello world?",
-  });
+  })
 
   logger.info(`Email sent to ${to} from ${from}`, {
     messageId: info.messageId,

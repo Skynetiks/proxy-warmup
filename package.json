@@ -5,7 +5,8 @@
   "scripts": {
     "start": "pnpm run dist/index.js",
     "dev": "tsx src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "leads": "tsx src/scripts/generateJson.ts"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -18,9 +19,13 @@
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.10.0",
+    "pg": "^8.13.3",
     "socks": "^2.8.4",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11"
   }
 }
