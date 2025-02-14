@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import socks from "socks";
 import { env } from "./env.js";
 import { logger } from "./logger.js";
-import { Content } from "./config.js";
+import { Content, getRandomSender } from "./config.js";
 
 export const sendMail = async (to: string, from: string) => {
   const transporter = nodemailer.createTransport({
@@ -19,17 +19,17 @@ export const sendMail = async (to: string, from: string) => {
     },
   });
 
-  if (env.SMTP_PROXY) {
-    transporter.set("proxy_socks_module", socks);
-    transporter.setupProxy(env.SMTP_PROXY);
-  } else {
-    logger.error("PROXY IS NOT SET USING DIRECT CONNECTION");
-  }
+  // if (env.SMTP_PROXY) {
+  //   transporter.set("proxy_socks_module", socks);
+  //   transporter.setupProxy(env.SMTP_PROXY);
+  // } else {
+  //   logger.error("PROXY IS NOT SET USING DIRECT CONNECTION");
+  // }
 
   if(!Content) return logger.error("Content is not loaded");
 
   const info = await transporter.sendMail({
-    from: `Sales <${env.SMTP_SENDER_EMAIL}>`,
+    from: `Sales <${getRandomSender()}>`,
     to: to,
     subject: Content.subject,
     text: Content.text,

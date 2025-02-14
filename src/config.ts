@@ -33,5 +33,20 @@ const loadContent = (): {html: string, text: string} => {
   return Content;
 };
 
+export function getRandomSender(): string {
+  // Read JSON file
+  const data = fs.readFileSync("senders.json", "utf8");
+  const senders = JSON.parse(data).senders;
+
+  if (!Array.isArray(senders) || senders.length === 0) {
+    throw new Error("Sender list is empty or invalid");
+  }
+
+  // Select a random sender
+  const randomIndex = Math.floor(Math.random() * senders.length);
+  return senders[randomIndex];
+}
+
+
 loadContent();
 
