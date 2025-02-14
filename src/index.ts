@@ -226,17 +226,22 @@ export class EmailWarmup {
       `Week ${this.getCurrentWeek()}: Scheduling ${emailsToSend} emails for today.`
     );
     this.dailyEmailCountSent = 0;
-
+  
     if (emailsToSend <= 0) {
       logger.error("Email count per day is non-positive. Skipping today.");
       this.scheduleNextDay();
       return;
     }
-
-    // Calculate delay between emails (in ms). Ensure a minimum delay of 1 second.
-    const delayBetweenEmails = Math.floor((24 * 60 * 60 * 1000) / emailsToSend);
+  
+    const now = new Date();
+    const nextMidnight = new Date(now);
+    nextMidnight.setHours(24, 0, 0, 0);
+    const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+  
+    // Calculate delay between emails based on time left in the day
+    const delayBetweenEmails = Math.floor(timeUntilMidnight / emailsToSend);
     const effectiveDelay = Math.max(delayBetweenEmails, 1000);
-
+  
     this.emailIntervalId = setInterval(async () => {
       if (this.dailyEmailCountSent >= emailsToSend) {
         if (this.emailIntervalId) {
@@ -247,7 +252,7 @@ export class EmailWarmup {
         this.scheduleNextDay();
         return;
       }
-
+  
       try {
         await this.sendRandomEmail();
         this.dailyEmailCountSent++;
