@@ -10,7 +10,7 @@ export const warmupSchedule: WarmupSchedule = createWarmupSchedule(
   1000
 );
 
-export const fromAddress: Sender = getRandomSender();
+// export const fromAddress: Sender = getRandomSender();
 
 export const STATUS_LOG_INTERVAL = 3 * 60 * 60 * 1000; // 3 hours
 

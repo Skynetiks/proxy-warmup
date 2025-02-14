@@ -2,7 +2,7 @@ import { setInterval, clearInterval, setTimeout, clearTimeout } from "timers";
 import { env } from "./env.js";
 import { logEmailWarmupProcess, logger } from "./logger.js";
 import type { EmailWarmupConfig, WarmupSchedule } from "./types.js";
-import { fromAddress, Sender, STATUS_LOG_INTERVAL, warmupSchedule } from "./config.js";
+import { getRandomSender, Sender, STATUS_LOG_INTERVAL, warmupSchedule } from "./config.js";
 import { promises as fsPromises } from "fs";
 import { sendMail } from "./nodemailer.js";
 
@@ -376,7 +376,7 @@ export function createWarmupSchedule(
 async function main() {
   // Create an instance of the EmailWarmup.
   const emailWarmup = new EmailWarmup({
-    from: fromAddress,
+    from: getRandomSender(),
     warmupSchedule: warmupSchedule,
     startDate: new Date(),
   });
