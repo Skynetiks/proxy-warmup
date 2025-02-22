@@ -33,7 +33,8 @@ export const sendMail = async (to: string, from: { name: string; email: string }
     to: to,
     subject: Content.subject,
     text: Content.text,
-    html: Content.html,
+    replyTo: "hello@skyfunnel.ai"
+    // html: Content.html,
   })
 
   logger.info(`Email sent to ${to} from ${from.name} ${from.email}`, {
