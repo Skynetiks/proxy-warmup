@@ -5,7 +5,7 @@ import type { WarmupSchedule } from "./types.js";
 import { createWarmupSchedule } from "./index.js";
 
 export const warmupSchedule: WarmupSchedule = createWarmupSchedule(
-  2000,
+  1000,
   1000,
   5000
 );
